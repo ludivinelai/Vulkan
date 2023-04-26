@@ -1,0 +1,175 @@
+diff --git a/base/vulkanexamplebase.h b/base/vulkanexamplebase.h
+index 9f814cf9..3fa18b0e 100644
+--- a/base/vulkanexamplebase.h
++++ b/base/vulkanexamplebase.h
+@@ -53,6 +53,7 @@
+ #include <glm/gtc/matrix_transform.hpp>
+ #include <glm/gtc/matrix_inverse.hpp>
+ #include <glm/gtc/type_ptr.hpp>
++#include <glm/gtx/string_cast.hpp>
+ #include <string>
+ #include <numeric>
+ #include <array>
+diff --git a/data/README.md b/data/README.md
+index 1566ad0a..d352b2ae 100644
+--- a/data/README.md
++++ b/data/README.md
+@@ -1,13 +1,14 @@
+-# Getting the assets
++# Vulkan samples asset pack
+ 
+-Binary assets (models, textures, etc.) are not stored in this repository and need to be downloaded manually.
++This repository contains the assets used by my [Vulkan samples](https://github.com/SaschaWillems/Vulkan) and is used there as a submodule.
+ 
+-## Downloading the assets
++# Licenses and acknowledgments
+ 
+-### Option 1: Run the python script
+-
+-Run the [download_assets.py](../download_assets.py) python script which will download the asset pack and unpacks it into the appropriate folder.
+-
+-### Option 2: Manual download
+-
+-Download the asset pack from [https://vulkan.gpuinfo.org/downloads/vulkan_asset_pack_gltf.zip](https://vulkan.gpuinfo.org/downloads/vulkan_asset_pack_gltf.zip) and extract it in the ```data``` directory.
++- HDR textures from http://gl.ict.usc.edu/Data/HighResProbes/
++- HDR textures from http://www.hdrlabs.com/sibl/archive.html
++- Cerberus gun model and textures by Andrew Maximov (http://artisaverb.info/Cerberus.html)
++- Tree model created using Tree IT from http://www.evolved-software.com
++- glTF sample models from https://github.com/KhronosGroup/glTF-Sample-Models
++- Retro UFO models 2016 by Sascha Willems licensed under the CC BY 3.0 license (https://creativecommons.org/licenses/by/3.0/)
++- Vulkan scene models (and derived work) 2016 by Dominic Agoro-Ombaka and Sascha Willems, do not use and distributed without request
++- Roboto Medium fonts from [Google Fonts](https://fonts.google.com), under license [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+diff --git a/data/shaders/glsl/shadowmapping/quad.frag b/data/shaders/glsl/shadowmapping/quad.frag
+index 86815ca7..2e559926 100644
+--- a/data/shaders/glsl/shadowmapping/quad.frag
++++ b/data/shaders/glsl/shadowmapping/quad.frag
+@@ -1,6 +1,6 @@
+ #version 450
+ 
+-layout (binding = 1) uniform sampler2D samplerColor;
++layout (binding = 1) uniform sampler2DShadow samplerColor;
+ 
+ layout (location = 0) in vec2 inUV;
+ 
+@@ -27,6 +27,6 @@ float LinearizeDepth(float depth)
+ 
+ void main() 
+ {
+-	float depth = texture(samplerColor, inUV).r;
++	float depth = texture(samplerColor, vec3(inUV, 1.0));
+ 	outFragColor = vec4(vec3(1.0-LinearizeDepth(depth)), 1.0);
+ }
+\ No newline at end of file
+diff --git a/data/shaders/glsl/shadowmapping/quad.frag.spv b/data/shaders/glsl/shadowmapping/quad.frag.spv
+index 88c56a21..b356561e 100644
+Binary files a/data/shaders/glsl/shadowmapping/quad.frag.spv and b/data/shaders/glsl/shadowmapping/quad.frag.spv differ
+diff --git a/data/shaders/glsl/texture/texture.frag b/data/shaders/glsl/texture/texture.frag
+index 7f9b132a..35bc5f01 100644
+--- a/data/shaders/glsl/texture/texture.frag
++++ b/data/shaders/glsl/texture/texture.frag
+@@ -12,14 +12,14 @@ layout (location = 0) out vec4 outFragColor;
+ 
+ void main() 
+ {
+-	vec4 color = texture(samplerColor, inUV, inLodBias);
++	outFragColor = textureOffset(samplerColor, inUV, ivec2(7, 7));
+ 
+-	vec3 N = normalize(inNormal);
++/* 	vec3 N = normalize(inNormal);
+ 	vec3 L = normalize(inLightVec);
+ 	vec3 V = normalize(inViewVec);
+ 	vec3 R = reflect(-L, N);
+ 	vec3 diffuse = max(dot(N, L), 0.0) * vec3(1.0);
+ 	float specular = pow(max(dot(R, V), 0.0), 16.0) * color.a;
+ 
+-	outFragColor = vec4(diffuse * color.rgb + specular, 1.0);	
++	outFragColor = vec4(diffuse * color.rgb + specular, 1.0); */	
+ }
+\ No newline at end of file
+diff --git a/data/shaders/glsl/texture/texture.frag.spv b/data/shaders/glsl/texture/texture.frag.spv
+index 971d3e82..a662490c 100644
+Binary files a/data/shaders/glsl/texture/texture.frag.spv and b/data/shaders/glsl/texture/texture.frag.spv differ
+diff --git a/data/shaders/glsl/texturearray/instancing.vert b/data/shaders/glsl/texturearray/instancing.vert
+index 45570505..b1064953 100644
+--- a/data/shaders/glsl/texturearray/instancing.vert
++++ b/data/shaders/glsl/texturearray/instancing.vert
+@@ -20,7 +20,7 @@ layout (location = 0) out vec3 outUV;
+ 
+ void main() 
+ {
+-	outUV = vec3(inUV, ubo.instance[gl_InstanceIndex].arrayIndex.x);
++	outUV = vec3(inUV, 5);
+ 	mat4 modelView = ubo.view * ubo.instance[gl_InstanceIndex].model;
+ 	gl_Position = ubo.projection * modelView * vec4(inPos, 1.0);
+ }
+diff --git a/data/shaders/glsl/texturearray/instancing.vert.spv b/data/shaders/glsl/texturearray/instancing.vert.spv
+index 363adc9e..6d9c449a 100644
+Binary files a/data/shaders/glsl/texturearray/instancing.vert.spv and b/data/shaders/glsl/texturearray/instancing.vert.spv differ
+diff --git a/data/shaders/glsl/texturecubemap/skybox.frag.spv b/data/shaders/glsl/texturecubemap/skybox.frag.spv
+index 87e4fe98..d41e3a47 100644
+Binary files a/data/shaders/glsl/texturecubemap/skybox.frag.spv and b/data/shaders/glsl/texturecubemap/skybox.frag.spv differ
+diff --git a/data/shaders/glsl/texturecubemap/skybox.vert.spv b/data/shaders/glsl/texturecubemap/skybox.vert.spv
+index fc6b9862..41cbc12a 100644
+Binary files a/data/shaders/glsl/texturecubemap/skybox.vert.spv and b/data/shaders/glsl/texturecubemap/skybox.vert.spv differ
+diff --git a/examples/CMakeLists.txt b/examples/CMakeLists.txt
+index c90b6b68..8349675b 100644
+--- a/examples/CMakeLists.txt
++++ b/examples/CMakeLists.txt
+@@ -113,6 +113,7 @@ set(EXAMPLES
+ 	multisampling
+ 	multithreading
+ 	multiview
++	multiview_test
+ 	negativeviewportheight	
+ 	occlusionquery
+ 	offscreen
+diff --git a/examples/multiview/multiview.cpp b/examples/multiview/multiview.cpp
+index 8879037e..9d3c8e6e 100644
+--- a/examples/multiview/multiview.cpp
++++ b/examples/multiview/multiview.cpp
+@@ -376,7 +376,7 @@ public:
+ 
+ 				// Left eye
+ 				vkCmdBindPipeline(drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, viewDisplayPipelines[0]);
+-				vkCmdDraw(drawCmdBuffers[i], 3, 1, 0, 0);
++				vkCmdDraw(drawCmdBuffers[i], 3, 1, 0, 0); // vertex input为空，利用vertexIndex生成3个顶点填充整个屏幕
+ 
+ 				// Right eye
+ 				viewport.x = (float)width / 2;
+diff --git a/examples/texture/texture.cpp b/examples/texture/texture.cpp
+index 4cc1f498..d0597555 100644
+--- a/examples/texture/texture.cpp
++++ b/examples/texture/texture.cpp
+@@ -69,6 +69,9 @@ public:
+ 		camera.setPosition(glm::vec3(0.0f, 0.0f, -2.5f));
+ 		camera.setRotation(glm::vec3(0.0f, 15.0f, 0.0f));
+ 		camera.setPerspective(60.0f, (float)width / (float)height, 0.1f, 256.0f);
++	
++		printf("%s\n", glm::to_string(camera.matrices.view).c_str());
++		printf("\n");	
+ 	}
+ 
+ 	~VulkanExample()
+@@ -771,6 +774,9 @@ public:
+ 		uboVS.modelView = camera.matrices.view;
+ 		uboVS.viewPos = camera.viewPos;
+ 		memcpy(uniformBufferVS.mapped, &uboVS, sizeof(uboVS));
++
++		printf("%s\n", glm::to_string(uboVS.projection * uboVS.modelView).c_str());
++		printf("\n");
+ 	}
+ 
+ 	void prepare()
+diff --git a/examples/texturecubemap/texturecubemap.cpp b/examples/texturecubemap/texturecubemap.cpp
+index 33358541..71e2ec60 100644
+--- a/examples/texturecubemap/texturecubemap.cpp
++++ b/examples/texturecubemap/texturecubemap.cpp
+@@ -355,7 +355,7 @@ public:
+ 		}
+ 		// Cubemap texture
+ 		const bool forceLinearTiling = false;
+-		loadCubemap(getAssetPath() + "textures/cubemap_yokohama_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, forceLinearTiling);
++		loadCubemap(getAssetPath() + "textures/mipmap_cube.ktx", VK_FORMAT_R8G8B8A8_UNORM, forceLinearTiling);
+ 	}
+ 
+ 	void setupDescriptorPool()

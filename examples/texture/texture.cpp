@@ -69,6 +69,9 @@ public:
 		camera.setPosition(glm::vec3(0.0f, 0.0f, -2.5f));
 		camera.setRotation(glm::vec3(0.0f, 15.0f, 0.0f));
 		camera.setPerspective(60.0f, (float)width / (float)height, 0.1f, 256.0f);
+	
+		printf("%s\n", glm::to_string(camera.matrices.view).c_str());
+		printf("\n");	
 	}
 
 	~VulkanExample()
@@ -770,6 +773,9 @@ public:
 		uboVS.modelView = camera.matrices.view;
 		uboVS.viewPos = camera.viewPos;
 		memcpy(uniformBufferVS.mapped, &uboVS, sizeof(uboVS));
+
+		printf("%s\n", glm::to_string(uboVS.projection * uboVS.modelView).c_str());
+		printf("\n");
 	}
 
 	void prepare()

@@ -376,7 +376,7 @@ public:
 
 				// Left eye
 				vkCmdBindPipeline(drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, viewDisplayPipelines[0]);
-				vkCmdDraw(drawCmdBuffers[i], 3, 1, 0, 0);
+				vkCmdDraw(drawCmdBuffers[i], 3, 1, 0, 0); // vertex input为空，利用vertexIndex生成3个顶点填充整个屏幕
 
 				// Right eye
 				viewport.x = (float)width / 2;

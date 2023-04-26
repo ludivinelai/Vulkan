@@ -352,7 +352,7 @@ public:
 		}
 		// Cubemap texture
 		const bool forceLinearTiling = false;
-		loadCubemap(getAssetPath() + "textures/cubemap_yokohama_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, forceLinearTiling);
+		loadCubemap(getAssetPath() + "textures/mipmap_cube.ktx", VK_FORMAT_R8G8B8A8_UNORM, forceLinearTiling);
 	}
 
 	void setupDescriptorPool()

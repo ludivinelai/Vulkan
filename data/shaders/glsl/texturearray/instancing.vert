@@ -20,7 +20,7 @@ layout (location = 0) out vec3 outUV;
 
 void main() 
 {
-	outUV = vec3(inUV, ubo.instance[gl_InstanceIndex].arrayIndex.x);
+	outUV = vec3(inUV, 5);
 	mat4 modelView = ubo.view * ubo.instance[gl_InstanceIndex].model;
 	gl_Position = ubo.projection * modelView * vec4(inPos, 1.0);
 }

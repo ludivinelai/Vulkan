@@ -116,6 +116,7 @@ set(EXAMPLES
 	multisampling
 	multithreading
 	multiview
+	multiview_test
 	negativeviewportheight	
 	occlusionquery
 	offscreen
